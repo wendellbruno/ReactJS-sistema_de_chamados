@@ -1,8 +1,9 @@
 import { FiPlusCircle } from 'react-icons/fi';
 import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/auth';
+import { useParams, useNavigate } from 'react-router-dom';
 import { db } from '../../services/firebaseConnection';
-import { collection, getDoc, getDocs, doc, addDoc } from 'firebase/firestore';
+import { collection, getDoc, getDocs, doc, addDoc, updateDoc } from 'firebase/firestore';
 import {toast} from 'react-toastify'
 import './New.css';
 import Title from '../../components/Title/Title';
@@ -13,6 +14,9 @@ import Header from '../../components/layout/Header/Header';
 function New() {
     
     const {user} = useContext(AuthContext);
+    const navigate = useNavigate();
+    const {id} = useParams();
+    const [idClient, setIdClient] = useState(false)
     
     const [clients, setClients] = useState([]);
     const [ clientSelected, setClientSelected] = useState(0);
@@ -37,6 +41,12 @@ function New() {
                 })
                 setClients(lista);
                 setLoadClients(false);
+
+                if(id){
+                    loadId(lista);
+                    return;
+                }
+
             }catch(erro){
             setLoadClients(false);
             console.log(erro)
@@ -44,9 +54,26 @@ function New() {
         }
     }
         loadClientes()
-    }, [])
+    }, [id])
 
 
+    async function loadId(lista){
+        const docRef = doc(db, 'chamados', id);
+        try{
+            const chamado = await getDoc(docRef)
+            setAssunto(chamado.data().assunto)
+            setComplemento(chamado.data().complemento)
+            setStatus(chamado.data().status)
+
+            let index = lista.findIndex(item => item.id === chamado.data().clientId)
+            setClientSelected(index)
+            setIdClient(true);
+        }catch(erro){
+            console.log(erro)
+            setIdClient(false);
+            toast.error('erro ao buscar chamado');
+        }
+    }
     
 
 
@@ -64,6 +91,35 @@ function New() {
 
     async function handleRegister(e){
         e.preventDefault();
+
+        if(idClient){
+            
+            try{
+                const docref = doc(db,"chamados",id)
+                await updateDoc(docref, {
+                client: clients[clientSelected].nomeFantasia,
+                clientId: clients[clientSelected].id,
+                assunto: assunto,
+                complemento: complemento,
+                status: status,
+                userId: user.uid
+                })
+                toast.success('Chamado editado com sucesso');
+                setClientSelected(0);
+                setComplemento('');
+                navigate('/dashboard');
+                return;
+
+            }catch(erro){
+             toast.error('Erro ao editar dados')
+             console.log(erro);
+             return;
+            }
+            
+        }
+
+
+
        try{
         await addDoc(collection(db, "chamados"), {
             created: new Date(),
@@ -89,7 +145,7 @@ function New() {
         <div>
             <Header />
             <div className="content">
-                <Title name="Novo Chamado">
+                <Title name={id ? 'Editando chamando' : 'Novo Chamado'}>
                     <FiPlusCircle size={24} />
                 </Title>
 
@@ -163,7 +219,7 @@ function New() {
                         onChange={(e) => setComplemento(e.target.value)}
                         />
 
-                        <button type='submit'>Registrar</button>
+                        <button type='submit'>{idClient ?'Editar' : 'Registrar'}</button>
 
                     </form>
                 </div>
