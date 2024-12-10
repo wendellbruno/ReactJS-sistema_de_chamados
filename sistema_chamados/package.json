@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/wendellbruno/ReactJS-sistema_de_chamados",
+  "homepage": "https://github.com/wendellbruno/ReactJS-sistema_de_chamados/tree/main/sistema_chamados",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
