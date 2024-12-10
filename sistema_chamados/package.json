@@ -3,14 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://github.com/wendellbruno/ReactJS-sistema_de_chamados/tree/main/sistema_chamados",
+  "homepage": "https://github.com/wendellbruno/ReactJS-sistema_de_chamados",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d"
+    "deploy": "gh-pages -d build"
   },
   "dependencies": {
     "date-fns": "^2.30.0",
